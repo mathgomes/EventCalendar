@@ -1,0 +1,24 @@
+{
+  "name": "eventcalendar",
+  "version": "1.0.0",
+  "description": "EventCalendar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mathgomes/EventCalendar.git"
+  },
+  "author": "Matheus Horta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mathgomes/EventCalendar/issues"
+  },
+  "homepage": "https://github.com/mathgomes/EventCalendar#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mongodb": "^2.2.30"
+  }
+}
