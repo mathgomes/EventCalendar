@@ -1,6 +1,6 @@
 /*
 Users
-(Username(_id), Name, Password)
+(_id, Username(unique), Name, Password)
 
 Events
 (_id, Description, DateBegin, DateEnd)
@@ -38,13 +38,9 @@ var mongo = module.exports = {
 	createCollections: function(db) {
 
 		function _callback(err, results, message) {
-			if(err)  {
-				console.log(err);
-			}
-			else {
-				console.log(results);
-				console.log(message);
-			}
+			if(err) console.log(err.name, err.message);
+			else console.log(results);
+			console.log(message);
 		}
 
 		function createIndex(collectionName, unique, attr) {
@@ -56,7 +52,17 @@ var mongo = module.exports = {
 				callback(db, collectionName);
 			});
 		}
-
+		function populate(db, templateDoc, index, collectionName) {
+			var collection = db.collection(collectionName);
+			collection.createIndex({ index: 1 }, { unique: true } );
+			collection.count(function(err, count) {
+				templateDoc._id = count + 1;
+				collection.insertOne(templateDoc, function(err, res) {
+					if(err) _callback(err, null, "Insertion failed");
+					else _callback(err, res.ops, "Inserted with success");
+				});
+			});
+		}
 
 		create("users", 
 		{
@@ -83,21 +89,15 @@ var mongo = module.exports = {
 		     ]
 		  }
 		}, function(db, collectionName) {
-			var collection = db.collection(collectionName);
-			var newDocument = {name :'test', username: 'test', password:'test' }
-			collection.count(function(err, count) {
-				newDocument._id = count + 1;
-				collection.insertOne(newDocument, function(err, res) {
-					_callback(err,res.ops,"Inserted with success");
-				});
-			});
+			populate(db, {name :'Test', username: 'test', password:'test' }, 
+				"username", collectionName);
 		});
 
 		create("events", 
 		{
 		  'validator': { '$and':
 		     [
-		        { 'descricao': 
+		        { 'description': 
 		        	{ 	
 		        		'$regex': /[a-z]+/,
 		        		'$exists': true 
@@ -115,7 +115,10 @@ var mongo = module.exports = {
 		        }
 		     ]
 		  }
-		},() => {});
+		},function(db, collectionName) {
+			populate(db, {description :'TestEvent', dateBegin: new Date(), dateEnd: new Date() }, 
+				"description", collectionName);
+		});
 
 	},
 	insertDocument: function(newDocument, collectionName, callback) {
